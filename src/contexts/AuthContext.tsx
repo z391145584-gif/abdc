@@ -221,18 +221,16 @@ function SupabaseAuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     // 初始化 Supabase 数据同步
-    initSync().then((ok) => {
+    initSync().then(async (ok) => {
       setSupabaseReady(ok)
       if (ok) {
         // 同步远程账号到本地
-        fetchAllProfiles().then((remoteAccounts) => {
-          if (remoteAccounts && remoteAccounts.length > 0) {
-            saveAccounts(remoteAccounts)
-            setAccounts(remoteAccounts)
-          }
-        })
+        const remoteAccounts = await fetchAllProfiles()
+        if (remoteAccounts && remoteAccounts.length > 0) {
+          saveAccounts(remoteAccounts)
+          setAccounts(remoteAccounts)
+        }
       }
-    }).finally(() => {
       // 恢复登录会话
       const session = getDemoSession()
       if (session) {
@@ -243,6 +241,13 @@ function SupabaseAuthProvider({ children }: { children: ReactNode }) {
         } else {
           setDemoSession(null)
         }
+      }
+      setLoading(false)
+    }).catch(() => {
+      // 即使同步失败也要结束加载状态
+      const session = getDemoSession()
+      if (session) {
+        setProfile(session.profile)
       }
       setLoading(false)
     })

@@ -9,8 +9,22 @@ import { LoginPage } from "@/pages/LoginPage"
 import { UserProfilePage } from "@/pages/UserProfilePage"
 import { ResetPasswordPage } from "@/pages/ResetPasswordPage"
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute"
+import { useAuth } from "@/hooks/useAuth"
 
-function App() {
+function AppContent() {
+  const { loading } = useAuth()
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="text-center">
+          <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+          <p className="text-muted-foreground text-sm">加载中...</p>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       <Navbar />
@@ -28,6 +42,10 @@ function App() {
       <Footer />
     </div>
   )
+}
+
+function App() {
+  return <AppContent />
 }
 
 export default App
