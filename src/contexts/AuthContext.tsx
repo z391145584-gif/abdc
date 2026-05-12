@@ -311,20 +311,17 @@ function SupabaseAuthProvider({ children }: { children: ReactNode }) {
       if (!prev) return prev
       const updated = { ...prev, ...updates, updated_at: new Date().toISOString() }
       setDemoSession(updated)
-      // 同步到远程
-      if (supabaseReady) {
-        upsertProfile({
-          email: updated.email,
-          password: "",
-          role: updated.role,
-          displayName: updated.display_name || "",
-          enabled: updated.enabled,
-        }).catch(() => {})
-      }
+      upsertProfile({
+        email: updated.email,
+        password: "",
+        role: updated.role,
+        displayName: updated.display_name || "",
+        enabled: updated.enabled,
+      }).catch(() => {})
       return updated
     })
     return {}
-  }, [supabaseReady])
+  }, [])
 
   const updatePasswordFn = useCallback(async (newPassword: string): Promise<AuthResponse> => {
     if (!profile) return { error: "未登录" }
@@ -335,12 +332,10 @@ function SupabaseAuthProvider({ children }: { children: ReactNode }) {
       current[idx].password = newPassword
       saveAccounts(current)
       setAccounts([...current])
-      if (supabaseReady) {
-        upsertProfile(current[idx]).catch(() => {})
-      }
+      upsertProfile(current[idx]).catch(() => {})
     }
     return {}
-  }, [profile, supabaseReady])
+  }, [profile])
 
   // 管理员账号管理
   const getAllAccounts = useCallback((): DemoAccount[] => {
@@ -355,11 +350,9 @@ function SupabaseAuthProvider({ children }: { children: ReactNode }) {
     const updated = [...current, account]
     saveAccounts(updated)
     setAccounts(updated)
-    if (supabaseReady) {
-      upsertProfile(account).catch(() => {})
-    }
+    upsertProfile(account).catch(() => {})
     return {}
-  }, [supabaseReady])
+  }, [])
 
   const updateAccount = useCallback((email: string, updates: Partial<DemoAccount>): AuthResponse => {
     const current = loadAccounts()
@@ -368,11 +361,9 @@ function SupabaseAuthProvider({ children }: { children: ReactNode }) {
     current[idx] = { ...current[idx], ...updates }
     saveAccounts(current)
     setAccounts([...current])
-    if (supabaseReady) {
-      upsertProfile(current[idx]).catch(() => {})
-    }
+    upsertProfile(current[idx]).catch(() => {})
     return {}
-  }, [supabaseReady])
+  }, [])
 
   const resetAccountPassword = useCallback((email: string, newPassword: string): AuthResponse => {
     if (newPassword.length < 6) return { error: "密码至少需要6个字符" }
@@ -382,11 +373,9 @@ function SupabaseAuthProvider({ children }: { children: ReactNode }) {
     current[idx].password = newPassword
     saveAccounts(current)
     setAccounts([...current])
-    if (supabaseReady) {
-      upsertProfile(current[idx]).catch(() => {})
-    }
+    upsertProfile(current[idx]).catch(() => {})
     return {}
-  }, [supabaseReady])
+  }, [])
 
   const toggleAccountEnabled = useCallback((email: string): AuthResponse => {
     const current = loadAccounts()
@@ -395,16 +384,14 @@ function SupabaseAuthProvider({ children }: { children: ReactNode }) {
     current[idx].enabled = !current[idx].enabled
     saveAccounts(current)
     setAccounts([...current])
-    if (supabaseReady) {
-      upsertProfile(current[idx]).catch(() => {})
-    }
+    upsertProfile(current[idx]).catch(() => {})
     // 如果禁用的是当前登录用户，强制登出
     if (!current[idx].enabled && profile?.email === email) {
       setProfile(null)
       setDemoSession(null)
     }
     return {}
-  }, [profile, supabaseReady])
+  }, [profile])
 
   const value: AuthContextType = {
     user: profile ? { id: profile.id, email: profile.email } as unknown as User : null,
